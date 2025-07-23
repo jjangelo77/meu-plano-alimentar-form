@@ -52,40 +52,40 @@
             /* Sombra padrão do Tailwind + uma sombra para dar profundidade */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), /* shadow-md */
                         0 1px 3px rgba(0, 0, 0, 0.08), /* shadow-md */
-                        0 5px 0 0 #1d4ed8; /* Sombra "inferior" para efeito 3D (Tailwind blue-700) */
+                        0 5px 0 0 #ea580c; /* Sombra "inferior" para efeito 3D (Tailwind orange-700) */
             transition: transform 0.1s ease-out, box-shadow 0.1s ease-out; /* Transição suave ao clicar */
         }
         /* Efeito de "clique" para o botão 3D */
         .button-3d-shadow:active {
             transform: translateY(3px); /* Move para baixo ao clicar */
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), /* Sombra menor ao "afundar" */
-                        0 0 0 0 #1d4ed8; /* Remove a sombra inferior */
+                        0 0 0 0 #ea580c; /* Remove a sombra inferior */
         }
     </style>
 </head>
 <body class="bg-white flex items-center justify-center min-h-screen p-4">
-    <div class="bg-yellow-50 p-8 rounded-xl shadow-lg w-full max-w-2xl">
+    <div class="bg-blue-50 p-8 rounded-xl shadow-lg w-full max-w-2xl">
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Seu Plano Alimentar Personalizado</h1>
         <p class="text-center text-gray-600 mb-8">Preencha o formulário abaixo para iniciarmos a criação do seu plano.</p>
 
         <form id="planForm" class="space-y-6">
             <!-- Nome Completo -->
             <div>
-                <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                <label for="nome" class="block text-sm font-bold text-gray-700 mb-1">Nome Completo</label>
                 <input type="text" id="nome" name="nome" required
                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
             </div>
 
             <!-- E-mail -->
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                <label for="email" class="block text-sm font-bold text-gray-700 mb-1">E-mail</label>
                 <input type="email" id="email" name="email" required
                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
             </div>
 
             <!-- Idade -->
             <div>
-                <label for="idade" class="block text-sm font-medium text-gray-700 mb-1">Idade</label>
+                <label for="idade" class="block text-sm font-bold text-gray-700 mb-1">Idade</label>
                 <input type="number" id="idade" name="idade" required min="1"
                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
             </div>
@@ -93,12 +93,12 @@
             <!-- Peso e Altura para IMC -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="peso" class="block text-sm font-medium text-gray-700 mb-1">Peso (kg)</label>
+                    <label for="peso" class="block text-sm font-bold text-gray-700 mb-1">Peso (kg)</label>
                     <input type="number" id="peso" name="peso" required step="0.1"
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                 </div>
                 <div>
-                    <label for="altura" class="block text-sm font-medium text-gray-700 mb-1">Altura (cm)</label>
+                    <label for="altura" class="block text-sm font-bold text-gray-700 mb-1">Altura (cm)</label>
                     <input type="number" id="altura" name="altura" required min="1"
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                 </div>
@@ -113,7 +113,7 @@
 
             <!-- Objetivo (Alterado para Select) -->
             <div>
-                <label for="objetivo" class="block text-sm font-medium text-gray-700 mb-1">Qual seu objetivo com o plano alimentar?</label>
+                <label for="objetivo" class="block text-sm font-bold text-gray-700 mb-1">Qual seu objetivo com o plano alimentar?</label>
                 <select id="objetivo" name="objetivo" required
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     <option value="">Selecione um objetivo</option>
@@ -128,7 +128,7 @@
 
             <!-- Nível de Atividade Física -->
             <div>
-                <label for="atividade" class="block text-sm font-medium text-gray-700 mb-1">Nível de Atividade Física</label>
+                <label for="atividade" class="block text-sm font-bold text-gray-700 mb-1">Nível de Atividade Física</label>
                 <select id="atividade" name="atividade" required
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     <option value="">Selecione</option>
@@ -142,21 +142,21 @@
 
             <!-- Restrições Alimentares (Consolidado) -->
             <div>
-                <label for="restricoes_alimentares" class="block text-sm font-medium text-gray-700 mb-1">Restrições Alimentares (Ex: Glúten, Lactose, Veganismo, Low Carb, etc. Se não tiver, escreva 'Nenhuma')</label>
+                <label for="restricoes_alimentares" class="block text-sm font-bold text-gray-700 mb-1">Restrições Alimentares (Ex: Glúten, Lactose, Veganismo, Low Carb, etc. Se não tiver, escreva 'Nenhuma')</label>
                 <textarea id="restricoes_alimentares" name="restricoes_alimentares" rows="3" required
                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
             </div>
 
             <!-- Preferência Alimentar (Texto do Exemplo Alterado) -->
             <div>
-                <label for="preferencia_alimentar" class="block text-sm font-medium text-gray-700 mb-1">Você tem alguma preferência alimentar específica? (Ex: Adoro frutos do mar, prefiro carnes brancas)</label>
+                <label for="preferencia_alimentar" class="block text-sm font-bold text-gray-700 mb-1">Você tem alguma preferência alimentar específica? (Ex: Adoro frutos do mar, prefiro carnes brancas)</label>
                 <textarea id="preferencia_alimentar" name="preferencia_alimentar" rows="3"
                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
             </div>
 
             <!-- Nova Pergunta: Quantas refeições você faz por dia? -->
             <div>
-                <label for="num_refeicoes" class="block text-sm font-medium text-gray-700 mb-1">Quantas refeições você faz por dia?</label>
+                <label for="num_refeicoes" class="block text-sm font-bold text-gray-700 mb-1">Quantas refeições você faz por dia?</label>
                 <select id="num_refeicoes" name="num_refeicoes" required
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     <option value="">Selecione</option>
@@ -177,7 +177,7 @@
             <div class="flex items-center mt-6 p-4 bg-purple-50 rounded-md border border-purple-200">
                 <input type="checkbox" id="upsellGuiaTreino" name="upsell_guia_treino"
                        class="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                <label for="upsellGuiaTreino" class="ml-3 block text-base font-medium text-gray-800">
+                <label for="upsellGuiaTreino" class="ml-3 block text-base font-bold text-gray-800">
                     Quero adicionar o **Guia de Treino de Musculação Personalizado** (+R$ 19,90)
                     <p class="text-sm text-gray-600 mt-1">Receba um guia de exercícios focado no seu objetivo (ganho de massa, perda de peso, etc.), com rotinas e dicas para otimizar seus resultados.</p>
                 </label>
@@ -185,7 +185,7 @@
 
             <!-- Botão de Envio -->
             <button type="submit" id="submitButton"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 animate-tremble-subtle button-3d-shadow">
+                    class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 animate-tremble-subtle button-3d-shadow">
                 Enviar Formulário e seguir para o ambiente seguro de pagamento 🔒
             </button>
 
@@ -221,11 +221,11 @@
 
         // Mapeamento de número de refeições para nomes de refeições
         const mealNamesMap = {
-            2: ["Café da Manhã", "Jantar"],
-            3: ["Café da Manhã", "Almoço", "Jantar"],
-            4: ["Café da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
-            5: ["Café da Manhã", "Lanche da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
-            6: ["Café da Manhã", "Lanche da Manhã", "Almoço", "Lanche da Tarde", "Jantar", "Ceia"]
+            2: ["**Café da Manhã**", "**Jantar**"],
+            3: ["**Café da Manhã**", "**Almoço**", "**Jantar**"],
+            4: ["**Café da Manhã**", "**Almoço**", "**Lanche da Tarde**", "**Jantar**"],
+            5: ["**Café da Manhã**", "**Lanche da Manhã**", "**Almoço**", "**Lanche da Tarde**", "**Jantar**"],
+            6: ["**Café da Manhã**", "**Lanche da Manhã**", "**Almoço**", "**Lanche da Tarde**", "**Jantar**", "**Ceia**"]
         };
 
         // Função para gerar os dropdowns de horário das refeições
@@ -245,8 +245,9 @@
                 
                 const label = document.createElement('label');
                 label.htmlFor = `horario_refeicao_${i + 1}`;
-                label.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700', 'mb-1');
-                label.textContent = `${mealNames[i] || `Refeição ${i + 1}`}:`;
+                label.classList.add('block', 'text-sm', 'font-bold', 'text-gray-700', 'mb-1'); // Alterado para font-bold
+                // Usar innerHTML para renderizar o negrito do Markdown
+                label.innerHTML = `${mealNames[i] || `Refeição ${i + 1}`}:`; 
 
                 const select = document.createElement('select');
                 select.id = `horario_refeicao_${i + 1}`;
