@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido de Plano Alimentar Personalizado</title>
+    <!-- Tailwind CSS CDN para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados e fontes */
+        body {
+            font-family: 'Inter', sans-serif; /* Fonte Inter para uma aparência moderna */
+        }
+        /* Ajustes para textarea para garantir que o scrollbar apareça quando necessário */
+        textarea {
+            resize: vertical; /* Permite redimensionamento vertical */
+            min-height: 80px; /* Altura mínima para melhor visualização */
+        }
+        /* Estilo para o container de horários de refeição dinâmicos */
+        .meal-time-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem; /* Espaçamento entre label e select */
+        }
+        @media (min-width: 640px) { /* Para telas maiores que sm */
+            .meal-time-row {
+                flex-direction: row;
+                align-items: center;
+                gap: 1rem; /* Espaçamento entre label e select em linha */
+            }
+            .meal-time-row label {
+                width: 33.333333%; /* 1/3 da largura */
+            }
+            .meal-time-row select {
+                width: 66.666667%; /* 2/3 da largura */
+            }
+        }
+
+        /* Animação de tremedeira suave para o botão */
+        @keyframes tremble-subtle {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-1px) translateY(0); }
+            50% { transform: translateX(1px) translateY(0); }
+            75% { transform: translateX(-1px) translateY(0); }
+        }
+        .animate-tremble-subtle {
+            animation: tremble-subtle 0.5s infinite ease-in-out; /* Mais rápido e sutil */
+        }
+
+        /* Sombra 3D para o botão */
+        .button-3d-shadow {
+            /* Sombra padrão do Tailwind + uma sombra para dar profundidade */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), /* shadow-md */
+                        0 1px 3px rgba(0, 0, 0, 0.08), /* shadow-md */
+                        0 5px 0 0 #1d4ed8; /* Sombra "inferior" para efeito 3D (Tailwind blue-700) */
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out; /* Transição suave ao clicar */
+        }
+        /* Efeito de "clique" para o botão 3D */
+        .button-3d-shadow:active {
+            transform: translateY(3px); /* Move para baixo ao clicar */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), /* Sombra menor ao "afundar" */
+                        0 0 0 0 #1d4ed8; /* Remove a sombra inferior */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Seu Plano Alimentar Personalizado</h1>
+        <p class="text-center text-gray-600 mb-8">Preencha o formulário abaixo para iniciarmos a criação do seu plano.</p>
+
+        <form id="planForm" class="space-y-6">
+            <!-- Nome Completo -->
+            <div>
+                <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                <input type="text" id="nome" name="nome" required
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <!-- E-mail -->
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                <input type="email" id="email" name="email" required
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <!-- Idade -->
+            <div>
+                <label for="idade" class="block text-sm font-medium text-gray-700 mb-1">Idade</label>
+                <input type="number" id="idade" name="idade" required min="1"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <!-- Peso e Altura para IMC -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="peso" class="block text-sm font-medium text-gray-700 mb-1">Peso (kg)</label>
+                    <input type="number" id="peso" name="peso" required step="0.1"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="altura" class="block text-sm font-medium text-gray-700 mb-1">Altura (cm)</label>
+                    <input type="number" id="altura" name="altura" required min="1"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+            </div>
+
+            <!-- Resultado do IMC -->
+            <div id="imcResultContainer" class="hidden mt-4 p-3 rounded-md bg-blue-50 border border-blue-200 text-blue-800">
+                <p class="font-semibold">Seu IMC: <span id="imcValue"></span></p>
+                <p>Status: <span id="imcStatus"></span></p>
+                <p class="text-sm mt-1"><span id="imcDescription"></span></p>
+            </div>
+
+            <!-- Objetivo (Alterado para Select) -->
+            <div>
+                <label for="objetivo" class="block text-sm font-medium text-gray-700 mb-1">Qual seu objetivo com o plano alimentar?</label>
+                <select id="objetivo" name="objetivo" required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="">Selecione um objetivo</option>
+                    <option value="perder_peso">Perder peso</option>
+                    <option value="ganhar_massa">Ganhar massa muscular</option>
+                    <option value="manter_peso">Manter peso</option>
+                    <option value="saude_geral">Saúde geral e bem-estar</option>
+                    <option value="melhorar_performance">Melhorar performance esportiva</option>
+                    <option value="outro">Outro (especificar nas restrições/preferências)</option>
+                </select>
+            </div>
+
+            <!-- Nível de Atividade Física -->
+            <div>
+                <label for="atividade" class="block text-sm font-medium text-gray-700 mb-1">Nível de Atividade Física</label>
+                <select id="atividade" name="atividade" required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="">Selecione</option>
+                    <option value="sedentario">Sedentário (pouco ou nenhum exercício)</option>
+                    <option value="leve">Levemente Ativo (exercício leve 1-3 dias/semana)</option>
+                    <option value="moderado">Moderadamente Ativo (exercício moderado 3-5 dias/semana)</option>
+                    <option value="ativo">Ativo (exercício intenso 6-7 dias/semana)</option>
+                    <option value="muito_ativo">Muito Ativo (exercício muito intenso, trabalho físico)</option>
+                </select>
+            </div>
+
+            <!-- Restrições Alimentares (Consolidado) -->
+            <div>
+                <label for="restricoes_alimentares" class="block text-sm font-medium text-gray-700 mb-1">Restrições Alimentares (Ex: Glúten, Lactose, Veganismo, Low Carb, etc. Se não tiver, escreva 'Nenhuma')</label>
+                <textarea id="restricoes_alimentares" name="restricoes_alimentares" rows="3" required
+                          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+            </div>
+
+            <!-- Preferência Alimentar (Texto do Exemplo Alterado) -->
+            <div>
+                <label for="preferencia_alimentar" class="block text-sm font-medium text-gray-700 mb-1">Você tem alguma preferência alimentar específica? (Ex: Adoro frutos do mar, prefiro carnes brancas)</label>
+                <textarea id="preferencia_alimentar" name="preferencia_alimentar" rows="3"
+                          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+            </div>
+
+            <!-- Nova Pergunta: Quantas refeições você faz por dia? -->
+            <div>
+                <label for="num_refeicoes" class="block text-sm font-medium text-gray-700 mb-1">Quantas refeições você faz por dia?</label>
+                <select id="num_refeicoes" name="num_refeicoes" required
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="">Selecione</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+            </div>
+
+            <!-- Container para os horários das refeições dinâmicos -->
+            <div id="dynamicMealTimesContainer" class="space-y-4">
+                <!-- Horários das refeições serão inseridos aqui via JavaScript -->
+            </div>
+
+            <!-- Opção de Upsell: Guia de Treino -->
+            <div class="flex items-center mt-6 p-4 bg-purple-50 rounded-md border border-purple-200">
+                <input type="checkbox" id="upsellGuiaTreino" name="upsell_guia_treino"
+                       class="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                <label for="upsellGuiaTreino" class="ml-3 block text-base font-medium text-gray-800">
+                    Quero adicionar o **Guia de Treino de Musculação Personalizado** (+R$ 19,90)
+                    <p class="text-sm text-gray-600 mt-1">Receba um guia de exercícios focado no seu objetivo (ganho de massa, perda de peso, etc.), com rotinas e dicas para otimizar seus resultados.</p>
+                </label>
+            </div>
+
+            <!-- Botão de Envio -->
+            <button type="submit" id="submitButton"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 animate-tremble-subtle button-3d-shadow">
+                Enviar Formulário e seguir para o ambiente seguro de pagamento 🔒
+            </button>
+
+            <!-- Mensagem de Status -->
+            <div id="statusMessage" class="mt-4 p-3 text-center rounded-md hidden"></div>
+        </form>
+    </div>
+
+    <script>
+        // URL do seu Webhook do n8n (Workflow 01-form-submission)
+        // Certifique-se de que esta é a URL CORRETA do seu Webhook POST no n8n.
+        const N8N_WEBHOOK_URL = 'https://n8n.iasolution.cloud/webhook/tally-formulario'; // Mantenha o caminho original se não o mudou no n8n
+
+        const form = document.getElementById('planForm');
+        const submitButton = document.getElementById('submitButton');
+        const statusMessage = document.getElementById('statusMessage');
+        const numRefeicoesSelect = document.getElementById('num_refeicoes');
+        const dynamicMealTimesContainer = document.getElementById('dynamicMealTimesContainer');
+        const pesoInput = document.getElementById('peso');
+        const alturaInput = document.getElementById('altura');
+        const imcResultContainer = document.getElementById('imcResultContainer');
+        const imcValueSpan = document.getElementById('imcValue');
+        const imcStatusSpan = document.getElementById('imcStatus');
+        const imcDescriptionSpan = document.getElementById('imcDescription');
+        const upsellGuiaTreinoCheckbox = document.getElementById('upsellGuiaTreino');
+
+        // Opções de horário para os dropdowns dinâmicos
+        const timeOptions = [
+            "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00",
+            "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00",
+            "20:00", "21:00", "22:00"
+        ];
+
+        // Mapeamento de número de refeições para nomes de refeições
+        const mealNamesMap = {
+            2: ["Café da Manhã", "Jantar"],
+            3: ["Café da Manhã", "Almoço", "Jantar"],
+            4: ["Café da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
+            5: ["Café da Manhã", "Lanche da Manhã", "Almoço", "Lanche da Tarde", "Jantar"],
+            6: ["Café da Manhã", "Lanche da Manhã", "Almoço", "Lanche da Tarde", "Jantar", "Ceia"]
+        };
+
+        // Função para gerar os dropdowns de horário das refeições
+        function generateMealTimeInputs() {
+            dynamicMealTimesContainer.innerHTML = ''; // Limpa o container
+            const numMeals = parseInt(numRefeicoesSelect.value);
+
+            if (isNaN(numMeals) || numMeals < 2) {
+                return; // Não faz nada se o número de refeições for inválido
+            }
+
+            const mealNames = mealNamesMap[numMeals] || [];
+
+            for (let i = 0; i < numMeals; i++) {
+                const mealDiv = document.createElement('div');
+                mealDiv.classList.add('meal-time-row'); // Classe para flexbox
+                
+                const label = document.createElement('label');
+                label.htmlFor = `horario_refeicao_${i + 1}`;
+                label.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700', 'mb-1');
+                label.textContent = `${mealNames[i] || `Refeição ${i + 1}`}:`;
+
+                const select = document.createElement('select');
+                select.id = `horario_refeicao_${i + 1}`;
+                select.name = `horario_refeicao_${i + 1}`; // Nome único para cada campo
+                select.required = true;
+                select.classList.add('mt-1', 'block', 'w-full', 'px-4', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'focus:ring-blue-500', 'focus:border-blue-500', 'sm:text-sm');
+                select.setAttribute('data-index', i); // Para referenciar no evento de mudança
+
+                let defaultOption = document.createElement('option');
+                defaultOption.value = "";
+                defaultOption.textContent = "Selecione um horário";
+                select.appendChild(defaultOption);
+
+                mealDiv.appendChild(label);
+                mealDiv.appendChild(select);
+                dynamicMealTimesContainer.appendChild(mealDiv);
+            }
+            updateAllMealTimeOptions(); // Atualiza as opções de todos os dropdowns após criá-los
+        }
+
+        // Função para atualizar as opções de horários de refeição com base nas seleções anteriores
+        function updateAllMealTimeOptions() {
+            const mealTimeSelects = dynamicMealTimesContainer.querySelectorAll('select');
+            let previousTime = "00:00"; // Começa antes do primeiro horário possível
+
+            mealTimeSelects.forEach((currentSelect, index) => {
+                const currentSelectedValue = currentSelect.value; // Mantém o valor selecionado se possível
+                currentSelect.innerHTML = ''; // Limpa as opções existentes
+
+                let defaultOption = document.createElement('option');
+                defaultOption.value = "";
+                defaultOption.textContent = "Selecione um horário";
+                currentSelect.appendChild(defaultOption);
+
+                // Filtra as opções de tempo para serem maiores que o horário anterior
+                const availableTimes = timeOptions.filter(time => time > previousTime);
+
+                availableTimes.forEach(time => {
+                    let option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    currentSelect.appendChild(option);
+                });
+
+                // Tenta re-selecionar o valor anterior ou o primeiro disponível se o anterior for inválido
+                if (currentSelectedValue && availableTimes.includes(currentSelectedValue)) {
+                    currentSelect.value = currentSelectedValue;
+                    previousTime = currentSelectedValue; // Atualiza o tempo anterior para o próximo dropdown
+                } else if (availableTimes.length > 0) {
+                    currentSelect.value = ""; // Reseta se o valor selecionado não for mais válido
+                    previousTime = "00:00"; // Reseta para o próximo dropdown se não houver seleção válida
+                } else {
+                    currentSelect.value = "";
+                    previousTime = "00:00";
+                }
+
+                // Se um horário foi selecionado, o próximo dropdown deve começar a partir dele
+                if (currentSelect.value) {
+                    previousTime = currentSelect.value;
+                } else {
+                    // Se não houver seleção válida, o próximo deve começar do último horário válido anterior
+                    // ou do início se for o primeiro dropdown
+                    if (index > 0) {
+                        const prevSelect = mealTimeSelects[index - 1];
+                        previousTime = prevSelect.value || "00:00";
+                    } else {
+                        previousTime = "00:00";
+                    }
+                }
+            });
+        }
+
+        // Adiciona event listeners para cada dropdown de horário gerado dinamicamente
+        dynamicMealTimesContainer.addEventListener('change', (event) => {
+            if (event.target.tagName === 'SELECT' && event.target.name.startsWith('horario_refeicao_')) {
+                updateAllMealTimeOptions(); // Re-avalia todas as opções após uma mudança
+            }
+        });
+
+        // Event listener para a mudança no número de refeições
+        numRefeicoesSelect.addEventListener('change', generateMealTimeInputs);
+
+        // Gera os inputs de horário na carga inicial, caso um valor já esteja selecionado (ex: após recarregar a página)
+        if (numRefeicoesSelect.value) {
+            generateMealTimeInputs();
+        }
+
+        // Função para calcular e exibir o IMC
+        function calculateAndDisplayIMC() {
+            const peso = parseFloat(pesoInput.value);
+            const alturaCm = parseFloat(alturaInput.value);
+
+            if (isNaN(peso) || isNaN(alturaCm) || peso <= 0 || alturaCm <= 0) {
+                imcResultContainer.classList.add('hidden');
+                return;
+            }
+
+            const alturaM = alturaCm / 100; // Converte altura de cm para metros
+            const imc = peso / (alturaM * alturaM);
+            let status = '';
+            let statusDescription = ''; // Nova variável para a descrição do status
+
+            if (imc < 18.5) {
+                status = 'Abaixo do peso';
+                statusDescription = 'Indica que seu peso pode ser insuficiente para sua altura.';
+            } else if (imc >= 18.5 && imc < 24.9) {
+                status = 'Peso normal';
+                statusDescription = 'Seu peso está na faixa saudável para sua altura.';
+            } else if (imc >= 25 && imc < 29.9) {
+                status = 'Sobrepeso';
+                statusDescription = 'Seu peso está acima do ideal para sua altura, o que pode aumentar riscos à saúde.';
+            } else if (imc >= 30 && imc < 34.9) {
+                status = 'Obesidade Grau I';
+                statusDescription = 'Primeiro nível de obesidade, associado a riscos moderados de saúde.';
+            } else if (imc >= 35 && imc < 39.9) {
+                status = 'Obesidade Grau II';
+                statusDescription = 'Segundo nível de obesidade, com riscos significativos à saúde.';
+            } else {
+                status = 'Obesidade Grau III (Mórbida)';
+                statusDescription = 'Nível mais elevado de obesidade, com riscos graves à saúde.';
+            }
+
+            imcValueSpan.textContent = imc.toFixed(2); // Mostra IMC com 2 casas decimais
+            imcStatusSpan.textContent = status;
+            imcDescriptionSpan.textContent = statusDescription; // Exibe a descrição
+            imcResultContainer.classList.remove('hidden');
+        }
+
+        // Event listeners para cálculo de IMC ao digitar
+        pesoInput.addEventListener('input', calculateAndDisplayIMC);
+        alturaInput.addEventListener('input', calculateAndDisplayIMC);
+
+        // Dispara o cálculo de IMC na carga da página se já houver valores
+        calculateAndDisplayIMC();
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Impede o envio padrão do formulário (recarregar a página)
+
+            submitButton.disabled = true; // Desabilita o botão para evitar múltiplos envios
+            submitButton.textContent = 'Enviando...'; // Muda o texto do botão
+            statusMessage.classList.add('hidden'); // Esconde mensagens anteriores
+            statusMessage.classList.remove('bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800'); // Limpa estilos anteriores
+
+            const data = {};
+            const formData = new FormData(form); // Coleta todos os dados do formulário estáticos
+
+            // Adiciona os campos estáticos ao objeto de dados
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            // Coleta os campos de horário das refeições gerados dinamicamente
+            const mealTimeSelects = dynamicMealTimesContainer.querySelectorAll('select');
+            const mealTimes = {}; // Objeto para armazenar os horários das refeições
+            mealTimeSelects.forEach(select => {
+                mealTimes[select.name] = select.value;
+            });
+            data['horarios_refeicoes_detalhes'] = mealTimes; // Adiciona como um objeto aninhado
+
+            // Adiciona o IMC calculado e seu status/descrição aos dados
+            if (!isNaN(parseFloat(imcValueSpan.textContent))) {
+                data['imc'] = parseFloat(imcValueSpan.textContent);
+                data['imc_status'] = imcStatusSpan.textContent;
+                data['imc_description'] = imcDescriptionSpan.textContent; // Adiciona a descrição do IMC
+            }
+
+            // Adiciona a informação do upsell
+            data['incluir_guia_treino'] = upsellGuiaTreinoCheckbox.checked;
+
+            try {
+                // Envia os dados para o webhook do n8n via requisição POST
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // Indica que estamos enviando JSON
+                    },
+                    body: JSON.stringify(data) // Converte o objeto de dados para JSON
+                });
+
+                if (response.ok) { // Se a resposta for 2xx (sucesso)
+                    const responseData = await response.json();
+
+                    if (responseData.stripe_url) {
+                        // Se a URL do Stripe vier no JSON de resposta, redireciona explicitamente
+                        statusMessage.classList.remove('hidden');
+                        statusMessage.classList.add('bg-green-100', 'text-green-800');
+                        statusMessage.textContent = 'Pedido enviado! Redirecionando para o pagamento...';
+                        window.location.href = responseData.stripe_url; // Redireciona o navegador
+                    } else {
+                        // Se não houver stripe_url no JSON, mas a resposta foi OK
+                        statusMessage.classList.remove('hidden');
+                        statusMessage.classList.add('bg-green-100', 'text-green-800');
+                        statusMessage.textContent = responseData.message || 'Pedido enviado com sucesso. Verifique o console para mais detalhes.';
+                        console.log('Resposta do n8n (OK, mas sem stripe_url para redirecionar):', responseData);
+                    }
+                } else {
+                    // Se a resposta não for 2xx (erro HTTP)
+                    const errorData = await response.json();
+                    statusMessage.classList.remove('hidden');
+                    statusMessage.classList.add('bg-red-100', 'text-red-800');
+                    statusMessage.textContent = errorData.message || 'Ocorreu um erro ao processar seu pedido. Tente novamente.';
+                    console.error('Erro na resposta do n8n:', errorData);
+                }
+
+            } catch (error) {
+                // Erros de rede ou outros problemas na requisição
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.add('bg-red-100', 'text-red-800');
+                statusMessage.textContent = 'Erro de conexão. Verifique sua internet ou tente novamente mais tarde.';
+                console.error('Erro ao enviar formulário:', error);
+            } finally {
+                // Restaura o texto do botão para a nova frase
+                submitButton.disabled = false; // Reabilita o botão
+                submitButton.textContent = 'Enviar Formulário e seguir para o ambiente seguro de pagamento 🔒';
+            }
+        });
+    </script>
+</body>
+</html>
