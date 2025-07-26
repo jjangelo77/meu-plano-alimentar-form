@@ -341,29 +341,25 @@
         // Função para calcular e exibir o IMC
         function calculateAndDisplayIMC() {
             const peso = parseFloat(pesoInput.value);
-            let alturaCm = parseFloat(alturaInput.value); // Começa com o valor numérico parsed
+            const alturaInputString = alturaInput.value.trim(); // Pega a string bruta do input
+
+            // --- INÍCIO DA CORREÇÃO PARA ALTURA NO CÁLCULO DO IMC ---
+            // Normaliza a string da altura (substitui vírgula por ponto)
+            const normalizedAlturaString = alturaInputString.replace(',', '.');
+            let alturaCm = parseFloat(normalizedAlturaString); // Converte para número após normalização
 
             if (isNaN(peso) || isNaN(alturaCm) || peso <= 0 || alturaCm <= 0) {
                 imcResultContainer.classList.add('hidden');
                 return;
             }
 
-            // --- INÍCIO DA CORREÇÃO PARA ALTURA NO CÁLCULO DO IMC ---
-            const alturaInputString = alturaInput.value.trim(); // Pega a string bruta do input
-            // Verifica se a string de altura contém um ponto ou vírgula
-            if (alturaInputString.includes('.') || alturaInputString.includes(',')) {
-                // Assume que é em metros e converte para centímetros
-                // Substitui vírgula por ponto para garantir parseFloat correto
-                let alturaMeters = parseFloat(alturaInputString.replace(',', '.'));
-                if (!isNaN(alturaMeters) && alturaMeters > 0) {
-                    alturaCm = alturaMeters * 100; // Converte para cm
-                } else {
-                    // Se a entrada decimal for inválida, esconde o IMC e retorna
-                    imcResultContainer.classList.add('hidden');
-                    return;
-                }
+            // Se o valor numérico da altura for menor que um limite (ex: 3 metros ou 300 cm),
+            // assume que foi digitado em metros e converte para cm.
+            // Isso lida com "1.6" (que se torna 1.6) ou "160" (que permanece 160).
+            // Considera que ninguém tem menos de 100cm e digita em cm.
+            if (alturaCm > 0 && alturaCm < 100) { 
+                alturaCm = alturaCm * 100;
             }
-            // Se não tiver ponto/vírgula, assume que já está em cm, alturaCm já está parsed
             // --- FIM DA CORREÇÃO PARA ALTURA NO CÁLCULO DO IMC ---
 
             const alturaM = alturaCm / 100; // Converte altura de cm para metros para o cálculo do IMC
@@ -420,20 +416,27 @@
                 data[key] = value;
             });
 
-            // --- INÍCIO DA CORREÇÃO PARA ALTURA NO ENVIO (DUPLICADO PARA CLAREZA, MAS JÁ ESTÁ NA FUNÇÃO calculateAndDisplayIMC) ---
-            // Esta parte foi movida para calculateAndDisplayIMC para ser aplicada em tempo real
-            // e o valor final já está no imcValueSpan.textContent que é usado para data['imc']
-            // e o valor de data['altura'] é sobrescrito abaixo.
-            let alturaValueForSubmission = document.getElementById('altura').value.trim(); // Pega a string do input
-            if (alturaValueForSubmission.includes('.') || alturaValueForSubmission.includes(',')) {
-                let alturaMetersForSubmission = parseFloat(alturaValueForSubmission.replace(',', '.'));
-                if (!isNaN(alturaMetersForSubmission) && alturaMetersForSubmission > 0) {
-                    alturaValueForSubmission = alturaMetersForSubmission * 100; // Converte para cm
-                }
-            }
-            data['altura'] = alturaValueForSubmission; // Garante que a altura enviada esteja em cm
-            // --- FIM DA CORREÇÃO PARA ALTURA NO ENVIO ---
+            // --- INÍCIO DA CORREÇÃO PARA ALTURA NO ENVIO (APLICANDO A MESMA LÓGICA ROBUSTA) ---
+            const alturaInputStringForSubmission = document.getElementById('altura').value.trim();
+            const normalizedAlturaStringForSubmission = alturaInputStringForSubmission.replace(',', '.');
+            let alturaCmForSubmission = parseFloat(normalizedAlturaStringForSubmission);
 
+            if (!isNaN(alturaCmForSubmission) && alturaCmForSubmission > 0) {
+                if (alturaCmForSubmission > 0 && alturaCmForSubmission < 100) { // Assume metros se menor que 100cm
+                    alturaCmForSubmission = alturaCmForSubmission * 100;
+                }
+                data['altura'] = alturaCmForSubmission; // Garante que a altura enviada esteja em cm
+            } else {
+                // Se a altura for inválida, exibe mensagem de erro e impede o envio
+                console.error("Altura inválida para envio.");
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.add('bg-red-100', 'text-red-800');
+                statusMessage.textContent = 'Por favor, insira uma altura válida (ex: 170 ou 1,70).';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Clique aqui para enviar seu formulário';
+                return; // Impede o envio do formulário
+            }
+            // --- FIM DA CORREÇÃO PARA ALTURA NO ENVIO ---
 
             // Coleta os campos de horário das refeições gerados dinamicamente
             const mealTimeSelects = dynamicMealTimesContainer.querySelectorAll('select');
